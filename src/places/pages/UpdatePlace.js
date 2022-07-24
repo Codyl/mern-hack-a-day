@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { DUMMY_PLACES } from './UserPlaces.js';
 import Button from '../../shared/components/FormElements/Button';
 import Input from '../../shared/components/FormElements/Input';
+import Card from '../../shared/components/UIElmements/Card';
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_MINLENGTH,
@@ -30,19 +31,22 @@ export default function UpdatePlace() {
     );
     const identifiedPlace = DUMMY_PLACES.find((p) => p.id === placeId);
 
-  useEffect(() => {setFormState(
-    {
-      title: {
-        value: identifiedPlace.title,
-        isValid: true,
+  useEffect(() => {
+    if(identifiedPlace) {
+      setFormState(
+      {
+        title: {
+          value: identifiedPlace.title,
+          isValid: true,
+        },
+        description: {
+          value: identifiedPlace.description,
+          isValid: true,
+        },
       },
-      description: {
-        value: identifiedPlace.description,
-        isValid: true,
-      },
-    },
-    true
-  );
+      true
+    );
+    }
   setIsLoading(false);
 },[setFormState, identifiedPlace]);
 
@@ -54,7 +58,9 @@ export default function UpdatePlace() {
   if(isLoading) {
     return (
       <div className='center'>
+        <Card>
         <h2>Loading...</h2>
+        </Card>
       </div>
     )
   }
@@ -62,7 +68,9 @@ export default function UpdatePlace() {
   if (!identifiedPlace) {
     return (
       <div className='center'>
+        <Card>
         <h2>Could not find place!</h2>
+        </Card>
       </div>
     );
   }
