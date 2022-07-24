@@ -6,10 +6,12 @@ import { useForm } from '../../shared/hooks/formHook';
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
+  VALIDATOR_REQUIRE,
 } from '../../shared/util/validators';
 
 export default function Auth() {
-  const [formState, inputHandler] = useForm(
+  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [formState, inputHandler, setFormState] = useForm(
     {
       username: {
         value: '',
@@ -27,10 +29,34 @@ export default function Auth() {
     event.preventDefault();
     console.log(formState.inputs);
   };
+  const switchHandler = () => {
+    if (!isLoginMode) {
+      setFormState(
+        {
+          ...formState.inputs,
+          name: undefined,
+        },
+        formState.inputs.username.isValid && formState.inputs.password.isValid
+      );
+    } else {
+      setFormState({...formState.inputs, name: {value: '', isValid: false}}, false);
+    }
+    setIsLoginMode((prevMode) => !prevMode);
+  };
 
   return (
     <Card>
       <h2>Login</h2>
+      {!isLoginMode && (
+        <Input
+          label='Name'
+          element='input'
+          id='name'
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText='Please enter a name'
+          onInput={inputHandler}
+        />
+      )}
       <form>
         <Input
           label='Username'
@@ -57,9 +83,12 @@ export default function Auth() {
           disabled={!formState.isValid}
           onSubmit={submitHandler}
         >
-          Login to my account
+          {isLoginMode ? 'LOGIN' : 'SIGN UP'}
         </Button>
       </form>
+      <Button inverse onClick={switchHandler}>
+        SWITCH TO {isLoginMode ? 'SIGN UP' : 'LOGIN'}
+      </Button>
     </Card>
   );
 }

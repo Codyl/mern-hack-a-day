@@ -30,7 +30,7 @@ const App = () => {
           <Route path='/places/:pid' exact>
             <UpdatePlace />
           </Route>
-          <Route path='/login'>
+          <Route path='/auth'>
             <Auth></Auth>
           </Route>
           <Redirect to='/' />
