@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DUMMY_PLACES } from './UserPlaces.js';
 import Button from '../../shared/components/FormElements/Button';
@@ -15,7 +15,6 @@ export default function UpdatePlace() {
   const [isLoading, setIsLoading] = useState(true);
   const placeId = useParams().pid;
 
-  
   const [formState, inputHandler, setFormState] = useForm(
     {
       title: {
@@ -28,55 +27,55 @@ export default function UpdatePlace() {
       },
     },
     false
-    );
-    const identifiedPlace = DUMMY_PLACES.find((p) => p.id === placeId);
+  );
+  const identifiedPlace = DUMMY_PLACES.find((p) => p.id === placeId);
 
   useEffect(() => {
-    if(identifiedPlace) {
+    if (identifiedPlace) {
       setFormState(
-      {
-        title: {
-          value: identifiedPlace.title,
-          isValid: true,
+        {
+          title: {
+            value: identifiedPlace.title,
+            isValid: true,
+          },
+          description: {
+            value: identifiedPlace.description,
+            isValid: true,
+          },
         },
-        description: {
-          value: identifiedPlace.description,
-          isValid: true,
-        },
-      },
-      true
-    );
+        true
+      );
     }
-  setIsLoading(false);
-},[setFormState, identifiedPlace]);
+    setIsLoading(false);
+  }, [setFormState, identifiedPlace]);
 
   const placeUpdateSubmitHandler = (event) => {
     event.preventDefault();
     console.log(formState.inputs);
   };
 
-  if(isLoading) {
+  if (isLoading) {
     return (
       <div className='center'>
         <Card>
-        <h2>Loading...</h2>
+          <h2>Loading...</h2>
         </Card>
       </div>
-    )
+    );
   }
 
   if (!identifiedPlace) {
     return (
       <div className='center'>
         <Card>
-        <h2>Could not find place!</h2>
+          <h2>Could not find place!</h2>
         </Card>
       </div>
     );
   }
 
   return (
-    <form className='place-form' action=''>
+    <form className='place-form' action='' onSubmit={placeUpdateSubmitHandler}>
       <Input
         id='title'
         element='input'
@@ -99,11 +98,7 @@ export default function UpdatePlace() {
         initialValue={formState.inputs.description.value}
         initialValid={formState.inputs.description.isValid}
       />
-      <Button
-        type='submit'
-        onSubmit={placeUpdateSubmitHandler}
-        disabled={!formState.isValid}
-      >
+      <Button type='submit' disabled={!formState.isValid}>
         UPDATE PLACE
       </Button>
     </form>

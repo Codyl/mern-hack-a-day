@@ -1,4 +1,4 @@
-import React, { useCallback, useReducer } from 'react';
+import React from 'react';
 
 import Input from '../../shared/components/FormElements/Input';
 import {
@@ -10,28 +10,31 @@ import Button from '../../shared/components/FormElements/Button';
 import { useForm } from '../../shared/hooks/formHook';
 
 const NewPlace = () => {
-  const [formState, inputHandler] = useForm({
-    title: {
-      value: '',
-      isValid: false,
+  const [formState, inputHandler] = useForm(
+    {
+      title: {
+        value: '',
+        isValid: false,
+      },
+      description: {
+        value: '',
+        isValid: false,
+      },
+      address: {
+        value: '',
+        isValid: false,
+      },
     },
-    description: {
-      value: '',
-      isValid: false,
-    },
-    address: {
-      value: '',
-      isValid: false,
-    },
-  }, false);
+    false
+  );
 
-  const placeSubmitHandler = event => {
+  const placeSubmitHandler = (event) => {
     event.preventDefault();
-    console.log(formState.inputs)
-  }
+    console.log(formState.inputs);
+  };
 
   return (
-    <form action='' className='place-form'>
+    <form action='' className='place-form' onSubmit={placeSubmitHandler}>
       <Input
         id='title'
         element='input'
@@ -58,7 +61,7 @@ const NewPlace = () => {
         errorText='Please enter a valid address.'
         onInput={inputHandler}
       />
-      <Button type='submit' disabled={!formState.isValid} onSubmit={placeSubmitHandler}>
+      <Button type='submit' disabled={!formState.isValid}>
         ADD PLACE
       </Button>
     </form>

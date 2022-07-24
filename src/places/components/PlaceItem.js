@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from 'react';
 
-import Card from "../../shared/components/UIElmements/Card";
-import Button from "../../shared/components/FormElements/Button";
-import Modal from "../../shared/components/UIElmements/Modal";
-import Map from "../../shared/components/UIElmements/Map";
-import "./PlaceItem.css";
+import Card from '../../shared/components/UIElmements/Card';
+import Button from '../../shared/components/FormElements/Button';
+import Modal from '../../shared/components/UIElmements/Modal';
+import Map from '../../shared/components/UIElmements/Map';
+import './PlaceItem.css';
+import { AuthContext } from '../../shared/context/authContext';
 
 const PlaceItem = (props) => {
+  const auth = useContext(AuthContext);
   const [showMap, setShowMap] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
 
@@ -34,8 +36,12 @@ const PlaceItem = (props) => {
         footerClass='place-item__modal-actions'
         footer={
           <>
-            <Button inverse onClick={() => setShowWarning(false)}>CANCEL</Button>
-            <Button delete onClick={() => console.log('deleting')}>DELETE</Button>
+            <Button inverse onClick={() => setShowWarning(false)}>
+              CANCEL
+            </Button>
+            <Button delete onClick={() => console.log('deleting')}>
+              DELETE
+            </Button>
           </>
         }
       >
@@ -58,10 +64,14 @@ const PlaceItem = (props) => {
             <Button inverse onClick={openMapHandler}>
               VIEW ON MAP
             </Button>
-            <Button to={`/places/${props.id}`}>EDIT</Button>
-            <Button onClick={() => setShowWarning(true)} danger>
-              DELETE
-            </Button>
+            {auth.isLoggedin && (
+              <Button to={`/places/${props.id}`}>EDIT</Button>
+            )}
+            {auth.isLoggedin && (
+              <Button onClick={() => setShowWarning(true)} danger>
+                DELETE
+              </Button>
+            )}
           </div>
         </Card>
       </li>

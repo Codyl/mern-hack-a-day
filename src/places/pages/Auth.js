@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Button from '../../shared/components/FormElements/Button';
 import Input from '../../shared/components/FormElements/Input';
 import Card from '../../shared/components/UIElmements/Card';
@@ -8,8 +8,10 @@ import {
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,
 } from '../../shared/util/validators';
+import { AuthContext } from '../../shared/context/authContext';
 
 export default function Auth() {
+  const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [formState, inputHandler, setFormState] = useForm(
     {
@@ -28,6 +30,7 @@ export default function Auth() {
   const submitHandler = (event) => {
     event.preventDefault();
     console.log(formState.inputs);
+    auth.login();
   };
   const switchHandler = () => {
     if (!isLoginMode) {
@@ -57,7 +60,7 @@ export default function Auth() {
           onInput={inputHandler}
         />
       )}
-      <form>
+      <form onSubmit={submitHandler}>
         <Input
           label='Username'
           onInput={inputHandler}
@@ -78,11 +81,7 @@ export default function Auth() {
           initialValue={formState.inputs.password.value}
           initialValid={formState.inputs.password.isValid}
         ></Input>
-        <Button
-          type='submit'
-          disabled={!formState.isValid}
-          onSubmit={submitHandler}
-        >
+        <Button type='submit' disabled={!formState.isValid}>
           {isLoginMode ? 'LOGIN' : 'SIGN UP'}
         </Button>
       </form>
