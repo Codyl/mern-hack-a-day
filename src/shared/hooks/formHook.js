@@ -14,6 +14,7 @@ import { useCallback, useReducer } from "react";
             formIsValid = formIsValid && state.inputs[inputId].isValid;
           }
         }
+        console.log(action)
         return {
           ...state,
           inputs: {
@@ -25,7 +26,7 @@ import { useCallback, useReducer } from "react";
         case 'SET_DATA':
           return {
             inputs: action.inputs,
-            isValid: action.isValid
+            isValid: action.formIsValid
           }
       default:
         return state;

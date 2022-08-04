@@ -27,9 +27,30 @@ export default function Auth() {
     false
   );
 
-  const submitHandler = (event) => {
+  const submitHandler = async (event) => {
     event.preventDefault();
     console.log(formState.inputs);
+    if (isLoginMode) {
+    } else {
+      try {
+        const response = await fetch('http://localhost:5000/api/users/signup', {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formState.inputs.name.value,
+            email: formState.inputs.username.value,
+            password: formState.inputs.password.value,
+          }),
+        });
+        //gets the body data (user) of the fetched response
+        const responseData = await response.json();
+        console.log(responseData);
+      } catch (err) {
+        console.log(err);
+      }
+    }
     auth.login();
   };
   const switchHandler = () => {
@@ -42,29 +63,34 @@ export default function Auth() {
         formState.inputs.username.isValid && formState.inputs.password.isValid
       );
     } else {
-      setFormState({...formState.inputs, name: {value: '', isValid: false}}, false);
+      setFormState(
+        { ...formState.inputs, name: { value: '', isValid: false } },
+        false
+      );
     }
     setIsLoginMode((prevMode) => !prevMode);
   };
 
   return (
-    <Card>
-      <h2>Login</h2>
-      {!isLoginMode && (
-        <Input
-          label='Name'
-          element='input'
-          id='name'
-          validators={[VALIDATOR_REQUIRE()]}
-          errorText='Please enter a name'
-          onInput={inputHandler}
-        />
-      )}
+    <Card className='authentication'>
+      <h2>Login Required</h2>
       <form onSubmit={submitHandler}>
+        {!isLoginMode && (
+          <Input
+            label='Your Name'
+            element='input'
+            id='name'
+            type='text'
+            validators={[VALIDATOR_REQUIRE()]}
+            errorText='Please enter a name.'
+            onInput={inputHandler}
+          />
+        )}
         <Input
-          label='Username'
+          label='Your Username'
           onInput={inputHandler}
           id='username'
+          type='email'
           element='input'
           validators={[VALIDATOR_EMAIL()]}
           errorText='Username field must not be an email.'
