@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import Button from '../../shared/components/FormElements/Button';
 import Input from '../../shared/components/FormElements/Input';
 import Card from '../../shared/components/UIElmements/Card';
+import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
+import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
 import { useForm } from '../../shared/hooks/formHook';
 import {
   VALIDATOR_EMAIL,
@@ -13,6 +15,8 @@ import { AuthContext } from '../../shared/context/authContext';
 export default function Auth() {
   const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
   const [formState, inputHandler, setFormState] = useForm(
     {
       username: {
@@ -33,6 +37,7 @@ export default function Auth() {
     if (isLoginMode) {
     } else {
       try {
+        setIsLoading(true);
         const response = await fetch('http://localhost:5000/api/users/signup', {
           method: 'POST',
           headers: {
@@ -46,12 +51,18 @@ export default function Auth() {
         });
         //gets the body data (user) of the fetched response
         const responseData = await response.json();
+        if (!response.ok) {
+          throw new Error(responseData.message);
+        }
         console.log(responseData);
+        setIsLoading(false);
+        auth.login();
       } catch (err) {
+        setIsLoading(false);
         console.log(err);
+        setError(err.message || 'Something went wrong. Please try again.');
       }
     }
-    auth.login();
   };
   const switchHandler = () => {
     if (!isLoginMode) {
@@ -70,50 +81,57 @@ export default function Auth() {
     }
     setIsLoginMode((prevMode) => !prevMode);
   };
+  const errorHandler = () => {
+    setError(null);
+  };
 
   return (
-    <Card className='authentication'>
-      <h2>Login Required</h2>
-      <form onSubmit={submitHandler}>
-        {!isLoginMode && (
+    <>
+      {error && <ErrorModal error={error} onClear={errorHandler} />}
+      <Card className='authentication'>
+        {isLoading && <LoadingSpinner asOverlay />}
+        <h2>Login Required</h2>
+        <form onSubmit={submitHandler}>
+          {!isLoginMode && (
+            <Input
+              label='Your Name'
+              element='input'
+              id='name'
+              type='text'
+              validators={[VALIDATOR_REQUIRE()]}
+              errorText='Please enter a name.'
+              onInput={inputHandler}
+            />
+          )}
           <Input
-            label='Your Name'
-            element='input'
-            id='name'
-            type='text'
-            validators={[VALIDATOR_REQUIRE()]}
-            errorText='Please enter a name.'
+            label='Your Username'
             onInput={inputHandler}
-          />
-        )}
-        <Input
-          label='Your Username'
-          onInput={inputHandler}
-          id='username'
-          type='email'
-          element='input'
-          validators={[VALIDATOR_EMAIL()]}
-          errorText='Username field must not be an email.'
-          initialValue={formState.inputs.username.value}
-          initialValid={formState.inputs.username.isValid}
-        ></Input>
-        <Input
-          label='Password'
-          onInput={inputHandler}
-          id='password'
-          element='input'
-          validators={[VALIDATOR_MINLENGTH(8)]}
-          errorText='Password must be at least 8 characters.'
-          initialValue={formState.inputs.password.value}
-          initialValid={formState.inputs.password.isValid}
-        ></Input>
-        <Button type='submit' disabled={!formState.isValid}>
-          {isLoginMode ? 'LOGIN' : 'SIGN UP'}
+            id='username'
+            type='email'
+            element='input'
+            validators={[VALIDATOR_EMAIL()]}
+            errorText='Username field must not be an email.'
+            initialValue={formState.inputs.username.value}
+            initialValid={formState.inputs.username.isValid}
+          ></Input>
+          <Input
+            label='Password'
+            onInput={inputHandler}
+            id='password'
+            element='input'
+            validators={[VALIDATOR_MINLENGTH(8)]}
+            errorText='Password must be at least 8 characters.'
+            initialValue={formState.inputs.password.value}
+            initialValid={formState.inputs.password.isValid}
+          ></Input>
+          <Button type='submit' disabled={!formState.isValid}>
+            {isLoginMode ? 'LOGIN' : 'SIGN UP'}
+          </Button>
+        </form>
+        <Button inverse onClick={switchHandler}>
+          SWITCH TO {isLoginMode ? 'SIGN UP' : 'LOGIN'}
         </Button>
-      </form>
-      <Button inverse onClick={switchHandler}>
-        SWITCH TO {isLoginMode ? 'SIGN UP' : 'LOGIN'}
-      </Button>
-    </Card>
+      </Card>
+    </>
   );
 }
