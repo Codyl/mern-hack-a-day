@@ -9,6 +9,10 @@ const UserPlaces = () => {
   const [loadedPlaces, setLoadedPlaces] = useState();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
+  const placeDeleteHandler = (deletedPlaceId) => {
+    setLoadedPlaces(prevPlaces => prevPlaces.filter(place => place.id != deletedPlaceId))
+  }
+  
   let userId = useParams().userId;
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -29,7 +33,7 @@ const UserPlaces = () => {
           <LoadingSpinner asOverlay />
         </div>
       )}
-      {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} />}
+      {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} onDeletePlace={onDeleteHandler} />}
     </>
   );
 };

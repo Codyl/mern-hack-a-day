@@ -6,18 +6,39 @@ import Modal from '../../shared/components/UIElmements/Modal';
 import Map from '../../shared/components/UIElmements/Map';
 import './PlaceItem.css';
 import { AuthContext } from '../../shared/context/authContext';
+import { useHttpClient } from '../../shared/hooks/httpHook';
+import { useHistory, useParams } from 'react-router-dom';
+import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
+import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 
 const PlaceItem = (props) => {
   const auth = useContext(AuthContext);
   const [showMap, setShowMap] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const placeId = useParams().placeId;
+  const history = useHistory();
 
   const openMapHandler = () => setShowMap(true);
 
   const closeMapHandler = () => setShowMap(false);
 
+  const deletePlaceHandler = async () => {
+    try {
+      setShowWarning(false);
+      const responseData = await sendRequest(
+        `http://localhost:5000/api/places/${props.id}`,
+        'DELETE'
+      );
+      history.push('/');
+      props.onDelete(props.id);
+    } catch (err) {}
+  };
+
   return (
     <>
+      {error && <ErrorModal error={error} onClear={clearError} />}
+
       <Modal
         show={showMap}
         onCancel={closeMapHandler}
@@ -39,7 +60,7 @@ const PlaceItem = (props) => {
             <Button inverse onClick={() => setShowWarning(false)}>
               CANCEL
             </Button>
-            <Button delete onClick={() => console.log('deleting')}>
+            <Button delete onClick={deletePlaceHandler}>
               DELETE
             </Button>
           </>
@@ -52,6 +73,7 @@ const PlaceItem = (props) => {
       </Modal>
       <li className='place-item'>
         <Card className='place-item__content'>
+          {isLoading && <LoadingSpinner asOverlay />}
           <div className='place-item__image'>
             <img src={props.image} alt={props.title} />
           </div>
