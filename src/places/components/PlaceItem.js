@@ -86,10 +86,10 @@ const PlaceItem = (props) => {
             <Button inverse onClick={openMapHandler}>
               VIEW ON MAP
             </Button>
-            {auth.isLoggedin && (
+            {auth.userId === props.creatorId && (
               <Button to={`/places/${props.id}`}>EDIT</Button>
             )}
-            {auth.isLoggedin && (
+            {auth.userId === props.creatorId && (
               <Button onClick={() => setShowWarning(true)} danger>
                 DELETE
               </Button>

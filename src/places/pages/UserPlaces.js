@@ -33,7 +33,7 @@ const UserPlaces = () => {
           <LoadingSpinner asOverlay />
         </div>
       )}
-      {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} onDeletePlace={onDeleteHandler} />}
+      {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} onDeletePlace={placeDeleteHandler} />}
     </>
   );
 };
