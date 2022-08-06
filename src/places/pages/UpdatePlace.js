@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { DUMMY_PLACES } from './UserPlaces.js';
+import React, { useEffect, useState, useContext } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import Button from '../../shared/components/FormElements/Button';
 import Input from '../../shared/components/FormElements/Input';
 import Card from '../../shared/components/UIElmements/Card';
@@ -10,10 +9,17 @@ import {
 } from '../../shared/util/validators';
 import './PlaceForm.css';
 import { useForm } from '../../shared/hooks/formHook.js';
+import { useHttpClient } from '../../shared/hooks/httpHook';
+import { AuthContext } from '../../shared/context/authContext';
+import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
+import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 
 export default function UpdatePlace() {
-  const [isLoading, setIsLoading] = useState(true);
   const placeId = useParams().pid;
+  const [loadedPlace, setLoadedPlace] = useState();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const auth = useContext(AuthContext);
+  const history = useHistory();
 
   const [formState, inputHandler, setFormState] = useForm(
     {
@@ -28,43 +34,58 @@ export default function UpdatePlace() {
     },
     false
   );
-  const identifiedPlace = DUMMY_PLACES.find((p) => p.id === placeId);
-
   useEffect(() => {
-    if (identifiedPlace) {
-      setFormState(
-        {
-          title: {
-            value: identifiedPlace.title,
-            isValid: true,
+    const fetchPlace = async () => {
+      try {
+        const responseData = await sendRequest(
+          `http://localhost:5000/api/places/${placeId}`
+        );
+        setLoadedPlace(responseData.place);
+        setFormState(
+          {
+            title: {
+              value: responseData.place.title,
+              isValid: true,
+            },
+            description: {
+              value: responseData.place.description,
+              isValid: true,
+            },
           },
-          description: {
-            value: identifiedPlace.description,
-            isValid: true,
-          },
-        },
-        true
-      );
-    }
-    setIsLoading(false);
-  }, [setFormState, identifiedPlace]);
-
-  const placeUpdateSubmitHandler = (event) => {
+          true
+        );
+      } catch (err) {}
+    };
+    fetchPlace();
+  }, [sendRequest, placeId, setFormState]);
+  
+  const placeUpdateSubmitHandler = async (event) => {
     event.preventDefault();
-    console.log(formState.inputs);
+    try {
+      const responseData = await sendRequest(
+        `http://localhost:5000/api/places/${placeId}`,
+        'PATCH',
+        JSON.stringify({
+          title: formState.inputs.title.value,
+          description: formState.inputs.description.value,
+        }),
+        {
+          'Content-Type': 'application/json',
+        }
+        );
+        history.push('/' + auth.userId + '/places');
+    } catch (err) {}
   };
 
   if (isLoading) {
     return (
       <div className='center'>
-        <Card>
-          <h2>Loading...</h2>
-        </Card>
+        <Card>{isLoading && <LoadingSpinner />}</Card>
       </div>
     );
   }
 
-  if (!identifiedPlace) {
+  if (!loadedPlace && !error) {
     return (
       <div className='center'>
         <Card>
@@ -75,32 +96,41 @@ export default function UpdatePlace() {
   }
 
   return (
-    <form className='place-form' action='' onSubmit={placeUpdateSubmitHandler}>
-      <Input
-        id='title'
-        element='input'
-        label='Title'
-        type='text'
-        validators={[VALIDATOR_REQUIRE()]}
-        errorText='Please enter a valid title'
-        onInput={inputHandler}
-        initialValue={formState.inputs.title.value}
-        initialValid={formState.inputs.title.isValid}
-      />
-      <Input
-        id='description'
-        element='input'
-        label='Description'
-        type='text'
-        validators={[VALIDATOR_MINLENGTH(5)]}
-        errorText='Please enter a valid description (min. 5 characters).'
-        onInput={inputHandler}
-        initialValue={formState.inputs.description.value}
-        initialValid={formState.inputs.description.isValid}
-      />
-      <Button type='submit' disabled={!formState.isValid}>
-        UPDATE PLACE
-      </Button>
-    </form>
+    <>
+      {error && <ErrorModal error={error} onClear={clearError} />}
+      {!isLoading && loadedPlace && (
+        <form
+          className='place-form'
+          action=''
+          onSubmit={placeUpdateSubmitHandler}
+        >
+          <Input
+            id='title'
+            element='input'
+            label='Title'
+            type='text'
+            validators={[VALIDATOR_REQUIRE()]}
+            errorText='Please enter a valid title'
+            onInput={inputHandler}
+            initialValue={loadedPlace.title}
+            initialValid={true}
+          />
+          <Input
+            id='description'
+            element='input'
+            label='Description'
+            type='text'
+            validators={[VALIDATOR_MINLENGTH(5)]}
+            errorText='Please enter a valid description (min. 5 characters).'
+            onInput={inputHandler}
+            initialValue={loadedPlace.description}
+            initialValid={true}
+          />
+          <Button type='submit' disabled={!formState.isValid}>
+            UPDATE PLACE
+          </Button>
+        </form>
+      )}
+    </>
   );
 }

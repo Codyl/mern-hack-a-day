@@ -19,18 +19,18 @@ const NewPlace = () => {
     {
       title: {
         value: 'test',
-        isValid: false,
+        isValid: true,
       },
       description: {
         value: 'this is place',
-        isValid: false,
+        isValid: true,
       },
       address: {
         value: '1001 place',
-        isValid: false,
+        isValid: true,
       },
     },
-    false
+    true
   );
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const auth = useContext(AuthContext);
