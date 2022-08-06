@@ -12,6 +12,7 @@ import { useHttpClient } from '../../shared/hooks/httpHook';
 import { AuthContext } from '../../shared/context/authContext';
 import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
+import { useHistory } from 'react-router-dom';
 
 const NewPlace = () => {
   const [formState, inputHandler] = useForm(
@@ -33,6 +34,7 @@ const NewPlace = () => {
   );
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const auth = useContext(AuthContext);
+  const history = useHistory();
 
   const placeSubmitHandler = async (event) => {
     event.preventDefault();
@@ -56,7 +58,7 @@ const NewPlace = () => {
         }
       );
       //Redirect the user to an existing page
-      // history.push('/');
+      history.push(`/${auth.userId}/places`);
       console.log(formState.inputs);
     } catch (err) {}
   };

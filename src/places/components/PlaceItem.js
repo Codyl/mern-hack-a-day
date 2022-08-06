@@ -7,7 +7,7 @@ import Map from '../../shared/components/UIElmements/Map';
 import './PlaceItem.css';
 import { AuthContext } from '../../shared/context/authContext';
 import { useHttpClient } from '../../shared/hooks/httpHook';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
 import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 
@@ -16,8 +16,8 @@ const PlaceItem = (props) => {
   const [showMap, setShowMap] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const placeId = useParams().placeId;
   const history = useHistory();
+  console.log(auth.userId, props.creatorId);
 
   const openMapHandler = () => setShowMap(true);
 
@@ -26,11 +26,11 @@ const PlaceItem = (props) => {
   const deletePlaceHandler = async () => {
     try {
       setShowWarning(false);
-      const responseData = await sendRequest(
+      await sendRequest(
         `http://localhost:5000/api/places/${props.id}`,
         'DELETE'
       );
-      history.push('/');
+      history.push(`/${auth.userId}/places`);
       props.onDelete(props.id);
     } catch (err) {}
   };

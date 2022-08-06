@@ -15,17 +15,17 @@ import { useHttpClient } from '../../shared/hooks/httpHook';
 
 export default function Auth() {
   const auth = useContext(AuthContext);
-  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [isLoginMode, setIsLoginMode] = useState(false);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler, setFormState] = useForm(
     {
       username: {
-        value: 'test@test.com',
-        isValid: true,
+        value: '',
+        isValid: false,
       },
       password: {
-        value: 'password',
-        isValid: true,
+        value: '',
+        isValid: false,
       },
     },
     false
@@ -71,11 +71,15 @@ export default function Auth() {
     }
   };
   const switchHandler = () => {
+    console.log(formState);
     if (!isLoginMode) {
       setFormState(
         {
           ...formState.inputs,
-          name: undefined,
+          name: {
+            value: '',
+            isValid: false,
+          },
         },
         formState.inputs.username.isValid && formState.inputs.password.isValid
       );
@@ -116,7 +120,7 @@ export default function Auth() {
             type='email'
             element='input'
             validators={[VALIDATOR_EMAIL()]}
-            errorText='Username field must not be an email.'
+            errorText='Username field must be an email.'
             initialValue={formState.inputs.username.value}
             initialValid={formState.inputs.username.isValid}
           ></Input>
