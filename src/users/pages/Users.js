@@ -2,33 +2,25 @@ import React, { useEffect, useState } from 'react';
 import UsersList from '../components/UsersList';
 import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
+import { useHttpClient } from '../../shared/hooks/httpHook';
 
 export const Users = () => {
-  const [isLoading, setIsLoading] = useState();
-  const [error, setError] = useState();
   const [loadedUsers, setLoadedUsers] = useState();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  //Get all of the users
   useEffect(() => {
-    const sendRequest = async () => {
-      setIsLoading(true);
-      let responseData;
+    let responseData;
+    const fetchUsers = async () => {
       try {
-        const response = await fetch('localhost:5000/api/users');
-        responseData = response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-      } catch (err) {
-        setError(err.message);
-      }
-      setIsLoading(false);
-
+        responseData = await sendRequest('http://localhost:5000/api/users');
+      } catch (err) {}
       setLoadedUsers(responseData.users);
-      setIsLoading(false);
     };
-    sendRequest();
-  }, []);
+    fetchUsers();
+    //UseCallback prevents this from becoming an issue when a request is sent becuase there is only one object of sendRequest instead of recreating the function.
+  }, [sendRequest]);
   const errorHandler = () => {
-    setError(null);
+    clearError();
   };
   return (
     <>

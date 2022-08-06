@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 
 import Input from '../../shared/components/FormElements/Input';
 import {
@@ -8,63 +9,100 @@ import {
 import './PlaceForm.css';
 import Button from '../../shared/components/FormElements/Button';
 import { useForm } from '../../shared/hooks/formHook';
+import { useHttpClient } from '../../shared/hooks/httpHook';
+import { AuthContext } from '../../shared/context/authContext';
+import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
+import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
 
 const NewPlace = () => {
   const [formState, inputHandler] = useForm(
     {
       title: {
-        value: '',
+        value: 'test',
         isValid: false,
       },
       description: {
-        value: '',
+        value: 'this is place',
         isValid: false,
       },
       address: {
-        value: '',
+        value: '1001 place',
         isValid: false,
       },
     },
     false
   );
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const auth = useContext(AuthContext);
 
-  const placeSubmitHandler = (event) => {
+  const history = useHistory();
+  const placeSubmitHandler = async (event) => {
     event.preventDefault();
-    console.log(formState.inputs);
+    try {
+      console.log(auth.userId);
+      await sendRequest(
+        'http://localhost:5000/api/places',
+        'POST',
+        {
+          title: formState.inputs.title.value,
+          description: formState.inputs.description.value,
+          address: formState.inputs.address.value,
+          coordinates: {
+            lat: 1,
+            lng: 1,
+          },
+          creator: auth.userId,
+        },
+        {
+          'Content-type': 'application/json',
+        }
+      );
+      //Redirect the user to an existing page
+      // history.push('/');
+      console.log(formState.inputs);
+    } catch (err) {}
   };
 
   return (
-    <form action='' className='place-form' onSubmit={placeSubmitHandler}>
-      <Input
-        id='title'
-        element='input'
-        type='text'
-        label='title'
-        validators={[VALIDATOR_REQUIRE()]}
-        errorText='Please enter a valid title.'
-        onInput={inputHandler}
-      />
-      <Input
-        id='description'
-        element='textarea'
-        type='text'
-        label='Description'
-        validators={[VALIDATOR_REQUIRE(), VALIDATOR_MINLENGTH(5)]}
-        errorText='Please enter a valid description.'
-        onInput={inputHandler}
-      />
-      <Input
-        id='address'
-        element='input'
-        label='Address'
-        validators={[VALIDATOR_REQUIRE()]}
-        errorText='Please enter a valid address.'
-        onInput={inputHandler}
-      />
-      <Button type='submit' disabled={!formState.isValid}>
-        ADD PLACE
-      </Button>
-    </form>
+    <>
+      {error && <ErrorModal error={error} onClear={clearError} />}
+
+      <form action='' className='place-form' onSubmit={placeSubmitHandler}>
+        {isLoading && <LoadingSpinner asOverlay />}
+        <Input
+          id='title'
+          element='input'
+          type='text'
+          label='title'
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText='Please enter a valid title.'
+          onInput={inputHandler}
+          initialValue={formState.inputs.title.value}
+        />
+        <Input
+          id='description'
+          element='textarea'
+          type='text'
+          label='Description'
+          validators={[VALIDATOR_REQUIRE(), VALIDATOR_MINLENGTH(5)]}
+          errorText='Please enter a valid description.'
+          onInput={inputHandler}
+          initialValue={formState.inputs.description.value}
+        />
+        <Input
+          id='address'
+          element='input'
+          label='Address'
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText='Please enter a valid address.'
+          onInput={inputHandler}
+          initialValue={formState.inputs.address.value}
+        />
+        <Button type='submit' disabled={!formState.isValid}>
+          ADD PLACE
+        </Button>
+      </form>
+    </>
   );
 };
 

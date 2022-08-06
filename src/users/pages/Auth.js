@@ -11,21 +11,21 @@ import {
   VALIDATOR_REQUIRE,
 } from '../../shared/util/validators';
 import { AuthContext } from '../../shared/context/authContext';
+import { useHttpClient } from '../../shared/hooks/httpHook';
 
 export default function Auth() {
   const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler, setFormState] = useForm(
     {
       username: {
-        value: '',
-        isValid: false,
+        value: 'test@test.com',
+        isValid: true,
       },
       password: {
-        value: '',
-        isValid: false,
+        value: 'password',
+        isValid: true,
       },
     },
     false
@@ -34,58 +34,40 @@ export default function Auth() {
   const submitHandler = async (event) => {
     event.preventDefault();
     console.log(formState.inputs);
-    setIsLoading(true);
     if (isLoginMode) {
       try {
-        const response = await fetch('http://localhost:5000/api/users/login', {
-          method: 'POST',
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formState.inputs.username.value,
+        const responseData = await sendRequest(
+          'http://localhost:5000/api/users/login',
+          'POST',
+          JSON.stringify({
             password: formState.inputs.password.value,
+            email: formState.inputs.username.value,
           }),
-        });
-        //gets the body data (user) of the fetched response
-        const responseData = await response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        console.log(responseData);
-        setIsLoading(false);
-        auth.login();
+          {
+            'Content-type': 'application/json',
+          }
+        );
+        auth.login(responseData.user.id);
       } catch (err) {
-        setIsLoading(false);
-        console.log(err);
-        setError(err.message || 'Something went wrong. Please try again.');
+        //Error is handled in the hook but is needed here to ensure if there is an error the login is not reached.
+        console.log('error loggin in');
       }
     } else {
       try {
-        const response = await fetch('http://localhost:5000/api/users/signup', {
-          method: 'POST',
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: JSON.stringify({
+        const responseData = await sendRequest(
+          'http://localhost:5000/api/users/signup',
+          'POST',
+          JSON.stringify({
             name: formState.inputs.name.value,
             email: formState.inputs.username.value,
             password: formState.inputs.password.value,
           }),
-        });
-        //gets the body data (user) of the fetched response
-        const responseData = await response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        console.log(responseData);
-        setIsLoading(false);
-        auth.login();
-      } catch (err) {
-        setIsLoading(false);
-        console.log(err);
-        setError(err.message || 'Something went wrong. Please try again.');
-      }
+          {
+            'Content-type': 'application/json',
+          }
+        );
+        auth.login(responseData.user.id);
+      } catch (err) {}
     }
   };
   const switchHandler = () => {
@@ -106,7 +88,7 @@ export default function Auth() {
     setIsLoginMode((prevMode) => !prevMode);
   };
   const errorHandler = () => {
-    setError(null);
+    clearError();
   };
 
   return (

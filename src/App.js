@@ -15,12 +15,15 @@ import { AuthContext } from './shared/context/authContext';
 
 const App = () => {
   const [isLoggedin, setIsLoggedin] = useState(false);
+  const [userId, setUserId] = useState(false);
 
-  const login = useCallback(() => {
+  const login = useCallback((uid) => {
+    setUserId(uid);
     setIsLoggedin(true);
   }, []);
   const logout = useCallback(() => {
     setIsLoggedin(false);
+    setUserId(null);
   }, []);
   let routes;
   if (isLoggedin) {
@@ -60,7 +63,7 @@ const App = () => {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedin: isLoggedin, login: login, logout: logout }}
+      value={{ isLoggedin: isLoggedin, userId, login: login, logout: logout }}
     >
       <Router>
         <MainNavigation />

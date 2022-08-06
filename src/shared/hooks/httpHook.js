@@ -19,16 +19,25 @@ export const useHttpClient = () => {
           headers,
           signal: httpAbortController.signal,
         });
+
         const responseData = await response.json();
+        console.log(responseData)
+        setIsLoading(false);
+        //Remove completed requests from the active requests variable so we do not try to clear a request that is no longer active.
+        activeHttpRequests.current = activeHttpRequests.current.filter(
+          (reqCtrl) => reqCtrl !== httpAbortController
+        );
+
         if (!response.ok) {
           throw new Error(responseData.message);
         }
 
         return responseData;
       } catch (err) {
-        setError(err.message);
+        setError('err is ' + err.message);
+        setIsLoading(false);
+        throw err;
       }
-      setIsLoading(false);
     },
     []
   );
