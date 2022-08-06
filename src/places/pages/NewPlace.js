@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { useHistory } from 'react-router-dom';
 
 import Input from '../../shared/components/FormElements/Input';
 import {
@@ -35,7 +34,6 @@ const NewPlace = () => {
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const auth = useContext(AuthContext);
 
-  const history = useHistory();
   const placeSubmitHandler = async (event) => {
     event.preventDefault();
     try {
@@ -43,7 +41,7 @@ const NewPlace = () => {
       await sendRequest(
         'http://localhost:5000/api/places',
         'POST',
-        {
+        JSON.stringify({
           title: formState.inputs.title.value,
           description: formState.inputs.description.value,
           address: formState.inputs.address.value,
@@ -52,7 +50,7 @@ const NewPlace = () => {
             lng: 1,
           },
           creator: auth.userId,
-        },
+        }),
         {
           'Content-type': 'application/json',
         }
