@@ -10,7 +10,7 @@ import MainNavigation from './shared/components/Navigation/MainNavigation';
 import NewPlace from './places/pages/NewPlace';
 import UserPlaces from './places/pages/UserPlaces';
 import UpdatePlace from './places/pages/UpdatePlace';
-import Auth from './places/pages/Auth';
+import Auth from './users/pages/Auth';
 import { AuthContext } from './shared/context/authContext';
 
 const App = () => {
@@ -51,7 +51,7 @@ const App = () => {
           <UserPlaces />
         </Route>
         <Route path='/auth'>
-          <Auth/>
+          <Auth />
         </Route>
         <Redirect to='/auth' />
       </Switch>
@@ -64,9 +64,7 @@ const App = () => {
     >
       <Router>
         <MainNavigation />
-        <main>
-          {routes}
-        </main>
+        <main>{routes}</main>
       </Router>
     </AuthContext.Provider>
   );
