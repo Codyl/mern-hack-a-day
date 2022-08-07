@@ -4,15 +4,19 @@ import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
 import { useParams } from 'react-router-dom';
 import { useHttpClient } from '../../shared/hooks/httpHook';
+import Card from '../../shared/components/UIElmements/Card';
+import { NavLink } from 'react-router-dom';
 
 const UserPlaces = () => {
   const [loadedPlaces, setLoadedPlaces] = useState();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   const placeDeleteHandler = (deletedPlaceId) => {
-    setLoadedPlaces(prevPlaces => prevPlaces.filter(place => place.id != deletedPlaceId))
-  }
-  
+    setLoadedPlaces((prevPlaces) =>
+      prevPlaces.filter((place) => place.id !== deletedPlaceId)
+    );
+  };
+
   let userId = useParams().userId;
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -33,7 +37,9 @@ const UserPlaces = () => {
           <LoadingSpinner asOverlay />
         </div>
       )}
-      {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} onDeletePlace={placeDeleteHandler} />}
+      {!isLoading && (
+        <PlaceList items={loadedPlaces||[]} onDeletePlace={placeDeleteHandler} />
+      )}
     </>
   );
 };

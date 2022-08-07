@@ -16,7 +16,7 @@ import ImageUpload from '../../shared/components/FormElements/imageUpload';
 
 export default function Auth() {
   const auth = useContext(AuthContext);
-  const [isLoginMode, setIsLoginMode] = useState(false);
+  const [isLoginMode, setIsLoginMode] = useState(true);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler, setFormState] = useForm(
     {
@@ -118,7 +118,7 @@ export default function Auth() {
             />
           )}
           {!isLoginMode && (
-            <ImageUpload id='image' onInput={inputHandler} center />
+            <ImageUpload id='image' onInput={inputHandler} />
           )}
           <Input
             label='Your Username'
@@ -136,6 +136,7 @@ export default function Auth() {
             onInput={inputHandler}
             id='password'
             element='input'
+            type='password'
             validators={[VALIDATOR_MINLENGTH(8)]}
             errorText='Password must be at least 8 characters.'
             initialValue={formState.inputs.password.value}

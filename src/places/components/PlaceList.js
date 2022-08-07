@@ -14,7 +14,7 @@ const PlaceList = (props) => {
           <Button
           to='/places/new'
           >
-            Share place
+            Create new place
           </Button>
         </Card>
       </div>

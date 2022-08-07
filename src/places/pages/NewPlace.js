@@ -20,16 +20,16 @@ const NewPlace = () => {
   const [formState, inputHandler] = useForm(
     {
       title: {
-        value: 'test',
-        isValid: true,
+        value: '',
+        isValid: false,
       },
       description: {
-        value: 'this is place',
-        isValid: true,
+        value: '',
+        isValid: false,
       },
       address: {
-        value: '1001 place',
-        isValid: true,
+        value: '',
+        isValid: false,
       },
       image: {
         value: null,

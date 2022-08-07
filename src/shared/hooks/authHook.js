@@ -5,25 +5,6 @@ const useAuth = () => {
   const [userId, setUserId] = useState(false);
   const [tokenExpirationDate, setTokenExpirationDate] = useState();
 
-  useEffect(() => {
-    if (token && tokenExpirationDate) {
-      const remainingTime =
-        tokenExpirationDate.getTime() - new Date().getTime();
-      logoutTimer = setTimeout(logout, remainingTime);
-    } else {
-      clearTimeout(logoutTimer);
-    }
-  }, [logout, token, tokenExpirationDate]);
-
-  //runs after the render cycle
-  //Get the signed in data if it has not expired so the user can stay logged in.
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('userData'));
-    if (data && data.token && new Date() < new Date(data.expiration)) {
-      login(data.userId, data.token, data.expiration);
-    }
-  }, [login]);
-
   const login = useCallback((uid, token, prevExpiration) => {
     setUserId(uid);
     setToken(token);
@@ -33,7 +14,7 @@ const useAuth = () => {
       expiration = new Date();
       expiration.setHours(expiration.getHours() + 1);
     } else {
-      expiration = prevExpiration;
+      expiration = new Date(prevExpiration);
     }
 
     setTokenExpirationDate(expiration);
@@ -54,6 +35,26 @@ const useAuth = () => {
     setUserId(null);
     localStorage.removeItem('userData');
   }, []);
+
+  useEffect(() => {
+    if (token && tokenExpirationDate) {
+      const remainingTime =
+        tokenExpirationDate.getTime() - new Date().getTime();
+      logoutTimer = setTimeout(logout, remainingTime);
+    } else {
+      clearTimeout(logoutTimer);
+    }
+  }, [logout, token, tokenExpirationDate]);
+
+  //runs after the render cycle
+  //Get the signed in data if it has not expired so the user can stay logged in.
+  useEffect(() => {
+    const data = JSON.parse(localStorage.getItem('userData'));
+    if (data && data.token && new Date() < new Date(data.expiration)) {
+      login(data.userId, data.token, data.expiration);
+    }
+  }, [login]);
+
   return { token, login, logout, userId };
 };
 export default useAuth;

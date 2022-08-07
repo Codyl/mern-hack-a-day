@@ -19,7 +19,10 @@ export const useHttpClient = () => {
           headers,
           signal: httpAbortController.signal,
         });
-
+        // console.log(response)
+        // if(!response.ok && method === 'GET') {
+        //   return {};
+        // }
         const responseData = await response.json();
         console.log(responseData)
         setIsLoading(false);
@@ -34,7 +37,7 @@ export const useHttpClient = () => {
 
         return responseData;
       } catch (err) {
-        setError('err is ' + err.message);
+        setError(err.message);
         setIsLoading(false);
         throw err;
       }
