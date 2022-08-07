@@ -12,6 +12,7 @@ import {
 } from '../../shared/util/validators';
 import { AuthContext } from '../../shared/context/authContext';
 import { useHttpClient } from '../../shared/hooks/httpHook';
+import ImageUpload from '../../shared/components/FormElements/imageUpload';
 
 export default function Auth() {
   const auth = useContext(AuthContext);
@@ -76,16 +77,21 @@ export default function Auth() {
       setFormState(
         {
           ...formState.inputs,
-          name: {
-            value: '',
-            isValid: false,
-          },
+          name: undefined,
+          image: undefined,
         },
         formState.inputs.username.isValid && formState.inputs.password.isValid
       );
     } else {
       setFormState(
-        { ...formState.inputs, name: { value: '', isValid: false } },
+        {
+          ...formState.inputs,
+          name: { value: '', isValid: false },
+          image: {
+            value: null,
+            isValid: false,
+          },
+        },
         false
       );
     }
@@ -103,15 +109,18 @@ export default function Auth() {
         <h2>Login Required</h2>
         <form onSubmit={submitHandler}>
           {!isLoginMode && (
-            <Input
-              label='Your Name'
-              element='input'
-              id='name'
-              type='text'
-              validators={[VALIDATOR_REQUIRE()]}
-              errorText='Please enter a name.'
-              onInput={inputHandler}
-            />
+            <>
+              <Input
+                label='Your Name'
+                element='input'
+                id='name'
+                type='text'
+                validators={[VALIDATOR_REQUIRE()]}
+                errorText='Please enter a name.'
+                onInput={inputHandler}
+              />
+              <ImageUpload id='image' onInput={inputHandler} center />
+            </>
           )}
           <Input
             label='Your Username'

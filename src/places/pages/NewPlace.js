@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 
 import Input from '../../shared/components/FormElements/Input';
 import {
+  VALIDATOR_FILE,
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,
 } from '../../shared/util/validators';
@@ -97,6 +98,13 @@ const NewPlace = () => {
           errorText='Please enter a valid address.'
           onInput={inputHandler}
           initialValue={formState.inputs.address.value}
+        />
+        <Input 
+        id='image'
+        label='Image'
+        validators={[VALIDATOR_FILE()]}
+        errorText='Please add image'
+        onInput={inputHandler}
         />
         <Button type='submit' disabled={!formState.isValid}>
           ADD PLACE
