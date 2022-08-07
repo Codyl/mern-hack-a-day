@@ -14,6 +14,7 @@ import { AuthContext } from '../../shared/context/authContext';
 import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
 import { useHistory } from 'react-router-dom';
+import ImageUpload from '../../shared/components/FormElements/imageUpload';
 
 const NewPlace = () => {
   const [formState, inputHandler] = useForm(
@@ -30,6 +31,10 @@ const NewPlace = () => {
         value: '1001 place',
         isValid: true,
       },
+      image: {
+        value: null,
+        isValid: false,
+      },
     },
     true
   );
@@ -40,24 +45,14 @@ const NewPlace = () => {
   const placeSubmitHandler = async (event) => {
     event.preventDefault();
     try {
-      console.log(auth.userId);
-      await sendRequest(
-        'http://localhost:5000/api/places',
-        'POST',
-        JSON.stringify({
-          title: formState.inputs.title.value,
-          description: formState.inputs.description.value,
-          address: formState.inputs.address.value,
-          coordinates: {
-            lat: 1,
-            lng: 1,
-          },
-          creator: auth.userId,
-        }),
-        {
-          'Content-type': 'application/json',
-        }
-      );
+      const formData = new FormData();
+      formData.append('title', formState.inputs.title.value);
+      formData.append('description', formState.inputs.description.value);
+      formData.append('address', formState.inputs.address.value);
+      formData.append('image', formState.inputs.image.value);
+      formData.append('coordinates', { lat: 1, lng: 1 });
+      formData.append('creator', auth.userId);
+      await sendRequest('http://localhost:5000/api/places', 'POST', formData);
       //Redirect the user to an existing page
       history.push(`/${auth.userId}/places`);
       console.log(formState.inputs);
@@ -99,12 +94,18 @@ const NewPlace = () => {
           onInput={inputHandler}
           initialValue={formState.inputs.address.value}
         />
-        <Input 
-        id='image'
-        label='Image'
-        validators={[VALIDATOR_FILE()]}
-        errorText='Please add image'
-        onInput={inputHandler}
+        <Input
+          id='image'
+          label='Image'
+          validators={[VALIDATOR_FILE()]}
+          errorText='Please add image'
+          onInput={inputHandler}
+        />
+        <ImageUpload
+          center
+          id='image'
+          onInput={inputHandler}
+          errorText='Please provide an image'
         />
         <Button type='submit' disabled={!formState.isValid}>
           ADD PLACE
