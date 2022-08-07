@@ -50,7 +50,6 @@ const NewPlace = () => {
       formData.append('description', formState.inputs.description.value);
       formData.append('address', formState.inputs.address.value);
       formData.append('image', formState.inputs.image.value);
-      formData.append('coordinates', { lat: 1, lng: 1 });
       formData.append('creator', auth.userId);
       await sendRequest('http://localhost:5000/api/places', 'POST', formData);
       //Redirect the user to an existing page
@@ -93,13 +92,6 @@ const NewPlace = () => {
           errorText='Please enter a valid address.'
           onInput={inputHandler}
           initialValue={formState.inputs.address.value}
-        />
-        <Input
-          id='image'
-          label='Image'
-          validators={[VALIDATOR_FILE()]}
-          errorText='Please add image'
-          onInput={inputHandler}
         />
         <ImageUpload
           center
