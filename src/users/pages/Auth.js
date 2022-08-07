@@ -48,18 +48,16 @@ export default function Auth() {
             'Content-type': 'application/json',
           }
         );
-        auth.login(responseData.user.id);
+        auth.login(responseData.userId, responseData.token);
       } catch (err) {
         //Error is handled in the hook but is needed here to ensure if there is an error the login is not reached.
-        console.log('error loggin in');
+        console.log('error logging in');
       }
     } else {
       try {
         //Needed to send to backend because we sending binary data, the image
         const formData = new FormData();
-        console.log(formState);
         formData.append('email', formState.inputs.username.value);
-        console.log('herer');
         formData.append('name', formState.inputs.name.value);
         formData.append('password', formState.inputs.password.value);
         formData.append('image', formState.inputs.image.value);
@@ -68,13 +66,11 @@ export default function Auth() {
           'POST',
           formData
         );
-        console.log(responseData, 'test');
-        auth.login(responseData.user.id);
+        auth.login(responseData.userId, responseData.token);
       } catch (err) {}
     }
   };
   const switchHandler = () => {
-    console.log(formState);
     if (!isLoginMode) {
       setFormState(
         {

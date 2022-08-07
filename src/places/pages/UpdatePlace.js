@@ -58,7 +58,7 @@ export default function UpdatePlace() {
     };
     fetchPlace();
   }, [sendRequest, placeId, setFormState]);
-  
+
   const placeUpdateSubmitHandler = async (event) => {
     event.preventDefault();
     try {
@@ -70,10 +70,11 @@ export default function UpdatePlace() {
           description: formState.inputs.description.value,
         }),
         {
+          Authorization: `Bearer ${auth.token}`,
           'Content-Type': 'application/json',
         }
-        );
-        history.push('/' + auth.userId + '/places');
+      );
+      history.push('/' + auth.userId + '/places');
     } catch (err) {}
   };
 
