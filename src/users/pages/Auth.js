@@ -34,7 +34,7 @@ export default function Auth() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    console.log(formState.inputs);
+    console.log(formState.inputs, isLoginMode);
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
@@ -55,18 +55,20 @@ export default function Auth() {
       }
     } else {
       try {
+        //Needed to send to backend because we sending binary data, the image
+        const formData = new FormData();
+        console.log(formState);
+        formData.append('email', formState.inputs.username.value);
+        console.log('herer');
+        formData.append('name', formState.inputs.name.value);
+        formData.append('password', formState.inputs.password.value);
+        formData.append('image', formState.inputs.image.value);
         const responseData = await sendRequest(
           'http://localhost:5000/api/users/signup',
           'POST',
-          JSON.stringify({
-            name: formState.inputs.name.value,
-            email: formState.inputs.username.value,
-            password: formState.inputs.password.value,
-          }),
-          {
-            'Content-type': 'application/json',
-          }
+          formData
         );
+        console.log(responseData, 'test');
         auth.login(responseData.user.id);
       } catch (err) {}
     }
@@ -109,18 +111,18 @@ export default function Auth() {
         <h2>Login Required</h2>
         <form onSubmit={submitHandler}>
           {!isLoginMode && (
-            <>
-              <Input
-                label='Your Name'
-                element='input'
-                id='name'
-                type='text'
-                validators={[VALIDATOR_REQUIRE()]}
-                errorText='Please enter a name.'
-                onInput={inputHandler}
-              />
-              <ImageUpload id='image' onInput={inputHandler} center />
-            </>
+            <Input
+              label='Your Name'
+              element='input'
+              id='name'
+              type='text'
+              validators={[VALIDATOR_REQUIRE()]}
+              errorText='Please enter a name.'
+              onInput={inputHandler}
+            />
+          )}
+          {!isLoginMode && (
+            <ImageUpload id='image' onInput={inputHandler} center />
           )}
           <Input
             label='Your Username'

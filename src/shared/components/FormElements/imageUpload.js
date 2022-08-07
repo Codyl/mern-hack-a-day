@@ -29,13 +29,14 @@ export default function ImageUpload(props) {
     let pickedFile;
     let fileIsValid = isValid;
     if (event.target.files && event.target.files.length === 1) {
-      console.log(event)
+      console.log(event);
       pickedFile = event.target.files[0];
       setFile(pickedFile);
       fileIsValid = true;
     } else {
       fileIsValid = false;
     }
+    console.log(pickedFile);
     props.onInput(props.id, pickedFile, fileIsValid);
   };
   return (
@@ -61,4 +62,4 @@ export default function ImageUpload(props) {
       {!isValid && <p>{props.errorText}</p>}
     </div>
   );
-};
+}
