@@ -11,63 +11,56 @@ import NewPlace from './places/pages/NewPlace';
 import UserPlaces from './places/pages/UserPlaces';
 import UpdatePlace from './places/pages/UpdatePlace';
 import Auth from './users/pages/Auth';
-import { AuthContext } from './shared/context/authContext';
-import useAuth from './shared/hooks/authHook';
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useRef } from 'react';
 
 const App = () => {
-  const { token, login, logout, userId } = useAuth();
+  const token = useSelector((state) => state.token);
+  //needs to change routes when token changes
 
-  let routes;
-  if (token) {
-    routes = (
-      <Switch>
-        <Route exact path='/'>
-          <Users />
-        </Route>
-        <Route path='/:userId/places' exact>
-          <UserPlaces />
-        </Route>
-        <Route path='/places/new' exact>
-          <NewPlace />
-        </Route>
-        <Route path='/places/:pid' exact>
-          <UpdatePlace />
-        </Route>
-        <Redirect to='/' />
-      </Switch>
-    );
-  } else {
-    routes = (
-      <Switch>
-        <Route exact path='/'>
-          <Users />
-        </Route>
-        <Route path='/:userId/places' exact>
-          <UserPlaces />
-        </Route>
-        <Route path='/auth'>
-          <Auth />
-        </Route>
-        <Redirect to='/auth' />
-      </Switch>
-    );
-  }
+  const routes = useRef(
+    <Switch>
+      <Route exact path='/'>
+        <Users />
+      </Route>
+      <Route path='/:userId/places' exact>
+        <UserPlaces />
+      </Route>
+      <Route path='/auth'>
+        <Auth />
+      </Route>
+      <Redirect to='/auth' />
+    </Switch>
+  );
+  useEffect(() => {
+    if (token) {
+      routes.current = (
+        <Switch>
+          <Route exact path='/'>
+            <Users />
+          </Route>
+          <Route path='/:userId/places' exact>
+            <UserPlaces />
+          </Route>
+          <Route path='/places/new' exact>
+            <NewPlace />
+          </Route>
+          <Route path='/places/:pid' exact>
+            <UpdatePlace />
+          </Route>
+          <Redirect to='/' />
+        </Switch>
+      );
+      console.log(token);
+    }
+  }, [token]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        isLoggedin: !!token,
-        token: token,
-        userId: userId,
-        login: login,
-        logout: logout,
-      }}
-    >
-      <Router>
-        <MainNavigation />
-        <main>{routes}</main>
-      </Router>
-    </AuthContext.Provider>
+    <Router>
+      <MainNavigation />
+      <main>{routes.current}</main>
+    </Router>
   );
 };
 

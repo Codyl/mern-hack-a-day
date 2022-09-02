@@ -4,8 +4,6 @@ import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
 import { useParams } from 'react-router-dom';
 import { useHttpClient } from '../../shared/hooks/httpHook';
-import Card from '../../shared/components/UIElmements/Card';
-import { NavLink } from 'react-router-dom';
 
 const UserPlaces = () => {
   const [loadedPlaces, setLoadedPlaces] = useState();
@@ -38,7 +36,10 @@ const UserPlaces = () => {
         </div>
       )}
       {!isLoading && (
-        <PlaceList items={loadedPlaces||[]} onDeletePlace={placeDeleteHandler} />
+        <PlaceList
+          items={loadedPlaces || []}
+          onDeletePlace={placeDeleteHandler}
+        />
       )}
     </>
   );

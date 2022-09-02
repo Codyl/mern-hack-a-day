@@ -1,4 +1,5 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from '../../shared/components/FormElements/Button';
 import Input from '../../shared/components/FormElements/Input';
 import Card from '../../shared/components/UIElmements/Card';
@@ -10,12 +11,11 @@ import {
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,
 } from '../../shared/util/validators';
-import { AuthContext } from '../../shared/context/authContext';
 import { useHttpClient } from '../../shared/hooks/httpHook';
 import ImageUpload from '../../shared/components/FormElements/imageUpload';
+import { login } from '../../shared/redux/reducer';
 
 export default function Auth() {
-  const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler, setFormState] = useForm(
@@ -31,6 +31,17 @@ export default function Auth() {
     },
     false
   );
+  const dispatch = useDispatch();
+  const tokenExpiration = useSelector((state) => state.tokenExpiration);
+
+  //runs after the render cycle
+  //Get the signed in data if it has not expired so the user can stay logged in.
+  useEffect(() => {
+    const data = JSON.parse(localStorage.getItem('userData'));
+    if (data && data.token && new Date() < new Date(data.expiration)) {
+      dispatch(login({ userId: data.userId, token: data.token }));
+    }
+  }, [login]);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -48,10 +59,12 @@ export default function Auth() {
             'Content-type': 'application/json',
           }
         );
-        auth.login(responseData.userId, responseData.token);
+        dispatch(
+          login({ userId: responseData.userId, token: responseData.token })
+        );
+        console.log('test', tokenExpiration); //Undefined here but accepted in reducer.js for some reason
       } catch (err) {
-        //Error is handled in the hook but is needed here to ensure if there is an error the login is not reached.
-        console.log('error logging in');
+        console.log('error logging in', err.message);
       }
     } else {
       try {
@@ -66,7 +79,8 @@ export default function Auth() {
           'POST',
           formData
         );
-        auth.login(responseData.userId, responseData.token);
+        console.log(responseData);
+        dispatch(login(responseData.userId, responseData.token));
       } catch (err) {}
     }
   };
@@ -117,9 +131,7 @@ export default function Auth() {
               onInput={inputHandler}
             />
           )}
-          {!isLoginMode && (
-            <ImageUpload id='image' onInput={inputHandler} />
-          )}
+          {!isLoginMode && <ImageUpload id='image' onInput={inputHandler} />}
           <Input
             label='Your Username'
             onInput={inputHandler}

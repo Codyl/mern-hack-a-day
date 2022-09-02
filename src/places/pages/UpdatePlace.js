@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux/es/exports';
 import { useParams, useHistory } from 'react-router-dom';
 import Button from '../../shared/components/FormElements/Button';
 import Input from '../../shared/components/FormElements/Input';
@@ -10,7 +11,6 @@ import {
 import './PlaceForm.css';
 import { useForm } from '../../shared/hooks/formHook.js';
 import { useHttpClient } from '../../shared/hooks/httpHook';
-import { AuthContext } from '../../shared/context/authContext';
 import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
 import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 
@@ -18,8 +18,9 @@ export default function UpdatePlace() {
   const placeId = useParams().pid;
   const [loadedPlace, setLoadedPlace] = useState();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const auth = useContext(AuthContext);
   const history = useHistory();
+  const userId = useSelector((state) => state.userId);
+  const token = useSelector((state) => state.token);
 
   const [formState, inputHandler, setFormState] = useForm(
     {
@@ -62,7 +63,7 @@ export default function UpdatePlace() {
   const placeUpdateSubmitHandler = async (event) => {
     event.preventDefault();
     try {
-      const responseData = await sendRequest(
+      await sendRequest(
         `http://localhost:5000/api/places/${placeId}`,
         'PATCH',
         JSON.stringify({
@@ -70,11 +71,11 @@ export default function UpdatePlace() {
           description: formState.inputs.description.value,
         }),
         {
-          Authorization: `Bearer ${auth.token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         }
       );
-      history.push('/' + auth.userId + '/places');
+      history.push('/' + userId + '/places');
     } catch (err) {}
   };
 

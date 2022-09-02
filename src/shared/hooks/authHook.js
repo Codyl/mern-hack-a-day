@@ -25,7 +25,7 @@ const useAuth = () => {
       JSON.stringify({
         userId: uid,
         token: token,
-        expiration: expiration.toISOString(),
+        expiration: expiration,
       })
     );
   }, []);

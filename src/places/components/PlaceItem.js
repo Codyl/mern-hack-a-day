@@ -1,23 +1,24 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux/es/exports';
 
 import Card from '../../shared/components/UIElmements/Card';
 import Button from '../../shared/components/FormElements/Button';
 import Modal from '../../shared/components/UIElmements/Modal';
 import Map from '../../shared/components/UIElmements/Map';
 import './PlaceItem.css';
-import { AuthContext } from '../../shared/context/authContext';
 import { useHttpClient } from '../../shared/hooks/httpHook';
 import { useHistory } from 'react-router-dom';
 import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
 import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 
 const PlaceItem = (props) => {
-  const auth = useContext(AuthContext);
+  const userId = useSelector((state) => state.userId);
+  const token = useSelector((state) => state.token);
   const [showMap, setShowMap] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const history = useHistory();
-  console.log(auth.userId, props.creatorId);
+  console.log(userId, props.creatorId);
 
   const openMapHandler = () => setShowMap(true);
 
@@ -31,10 +32,10 @@ const PlaceItem = (props) => {
         'DELETE',
         null,
         {
-          Authorization: `Bearer ${auth.token}`,
+          Authorization: `Bearer ${token}`,
         }
       );
-      history.push(`/${auth.userId}/places`);
+      history.push(`/${userId}/places`);
       props.onDelete(props.id);
     } catch (err) {}
   };
@@ -93,10 +94,10 @@ const PlaceItem = (props) => {
             <Button inverse onClick={openMapHandler}>
               VIEW ON MAP
             </Button>
-            {auth.userId === props.creatorId && (
+            {userId === props.creatorId && (
               <Button to={`/places/${props.id}`}>EDIT</Button>
             )}
-            {auth.userId === props.creatorId && (
+            {userId === props.creatorId && (
               <Button onClick={() => setShowWarning(true)} danger>
                 DELETE
               </Button>

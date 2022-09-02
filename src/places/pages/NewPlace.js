@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import { useSelector } from 'react-redux/es/exports';
 
 import Input from '../../shared/components/FormElements/Input';
 import {
-  VALIDATOR_FILE,
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,
 } from '../../shared/util/validators';
@@ -10,7 +10,6 @@ import './PlaceForm.css';
 import Button from '../../shared/components/FormElements/Button';
 import { useForm } from '../../shared/hooks/formHook';
 import { useHttpClient } from '../../shared/hooks/httpHook';
-import { AuthContext } from '../../shared/context/authContext';
 import ErrorModal from '../../shared/components/UIElmements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElmements/LoadingSpinner';
 import { useHistory } from 'react-router-dom';
@@ -39,8 +38,9 @@ const NewPlace = () => {
     true
   );
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const auth = useContext(AuthContext);
   const history = useHistory();
+  const userId = useSelector((state) => state.userId);
+  const token = useSelector((state) => state.token);
 
   const placeSubmitHandler = async (event) => {
     event.preventDefault();
@@ -50,12 +50,12 @@ const NewPlace = () => {
       formData.append('description', formState.inputs.description.value);
       formData.append('address', formState.inputs.address.value);
       formData.append('image', formState.inputs.image.value);
-      formData.append('creator', auth.userId);
+      formData.append('creator', userId);
       await sendRequest('http://localhost:5000/api/places', 'POST', formData, {
-        Authorization: `Bearer ${auth.token}`,
+        Authorization: `Bearer ${token}`,
       });
       //Redirect the user to an existing page
-      history.push(`/${auth.userId}/places`);
+      history.push(`/${userId}/places`);
       console.log(formState.inputs);
     } catch (err) {}
   };
