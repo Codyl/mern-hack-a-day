@@ -13,7 +13,7 @@ export const slice = createSlice({
       let expiration;
       const prevExpiration = JSON.parse(
         localStorage.getItem('userData')
-      ).expiration;
+      )?.expiration;
       //If no previous expiration then create a new expiration
       if (!prevExpiration) {
         //User was not signed in or sign in has expired
@@ -23,7 +23,6 @@ export const slice = createSlice({
         expiration = new Date(prevExpiration); //action in actions does not have expiration
       }
       const { payload } = action;
-      console.log(action);
       localStorage.setItem(
         'userData',
         JSON.stringify({

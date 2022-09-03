@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 import './NavLinks.css';
 import { useDispatch, useSelector } from 'react-redux/es/exports';
 import { logout } from '../../redux/reducer';
@@ -11,19 +11,22 @@ const NavLinks = (props) => {
   const token = useSelector((state) => state.token);
   const tokenExpiration = useSelector((state) => state.tokenExpiration);
   const dispatch = useDispatch();
+  const history = useHistory();
 
   useEffect(() => {
     if (token && tokenExpiration) {
-      const remainingTime = tokenExpiration.getTime() - new Date().getTime();
-      logoutTimer = setTimeout(dispatch(logout), remainingTime);
+      const remainingTime =
+        new Date(tokenExpiration).getTime() - new Date().getTime();
+      logoutTimer = setTimeout(() => dispatch(logout()), remainingTime);
     } else {
       clearTimeout(logoutTimer);
     }
-  }, [logout, token, tokenExpiration]);
+  }, [token, tokenExpiration, dispatch]);
 
   const logoutHandler = () => {
-    logout();
+    dispatch(logout());
     localStorage.removeItem('userData');
+    history.push('/auth');
   };
 
   return (

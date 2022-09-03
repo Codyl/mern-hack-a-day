@@ -19,12 +19,7 @@ export const useHttpClient = () => {
           headers,
           signal: httpAbortController.signal,
         });
-        // console.log(response)
-        // if(!response.ok && method === 'GET') {
-        //   return {};
-        // }
         const responseData = await response.json();
-        console.log(responseData)
         setIsLoading(false);
         //Remove completed requests from the active requests variable so we do not try to clear a request that is no longer active.
         activeHttpRequests.current = activeHttpRequests.current.filter(

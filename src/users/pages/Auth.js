@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+
 import Button from '../../shared/components/FormElements/Button';
 import Input from '../../shared/components/FormElements/Input';
 import Card from '../../shared/components/UIElmements/Card';
@@ -32,20 +34,10 @@ export default function Auth() {
     false
   );
   const dispatch = useDispatch();
-  const tokenExpiration = useSelector((state) => state.tokenExpiration);
-
-  //runs after the render cycle
-  //Get the signed in data if it has not expired so the user can stay logged in.
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('userData'));
-    if (data && data.token && new Date() < new Date(data.expiration)) {
-      dispatch(login({ userId: data.userId, token: data.token }));
-    }
-  }, [login]);
+  const history = useHistory();
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    console.log(formState.inputs, isLoginMode);
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
@@ -62,7 +54,7 @@ export default function Auth() {
         dispatch(
           login({ userId: responseData.userId, token: responseData.token })
         );
-        console.log('test', tokenExpiration); //Undefined here but accepted in reducer.js for some reason
+        history.push('/');
       } catch (err) {
         console.log('error logging in', err.message);
       }
@@ -79,7 +71,6 @@ export default function Auth() {
           'POST',
           formData
         );
-        console.log(responseData);
         dispatch(login(responseData.userId, responseData.token));
       } catch (err) {}
     }

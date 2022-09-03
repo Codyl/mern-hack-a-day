@@ -56,7 +56,6 @@ const NewPlace = () => {
       });
       //Redirect the user to an existing page
       history.push(`/${userId}/places`);
-      console.log(formState.inputs);
     } catch (err) {}
   };
 
